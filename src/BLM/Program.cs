@@ -1,7 +1,7 @@
 ﻿using Lib;
 
-var numberOfMachines = 3;//RandomHelper.GetRandomFromValues([10, 20, 50]);
-var r = 4;//RandomHelper.GetRandomFromValuesDecimal([1.5, 2]);
+var numberOfMachines = RandomHelper.GetRandomFromValues([10, 20, 50]);
+var r = RandomHelper.GetRandomFromValuesDecimal([1.5, 2]);
 var instance = new Instance(numberOfMachines, r);
 
 var oldMakeSpan = instance.MakeSpan;
@@ -17,11 +17,11 @@ static void ExecuteBestImprovementSearch(Instance instance)
         Instance.MoveTask(
             instance.MachineWithHighestMakeSpan,
             instance.MachineWithLowestMakeSpan,
-            instance.MachineWithHighestMakeSpan.LowestTask!);
+            instance.MachineWithHighestMakeSpan.HighestTask!);
     }
 }
 
-static bool IsPossibleToImprove(Instance instance)
+/* static bool IsPossibleToImprove(Instance instance)
 {
     var highestMakeSpanMachine = instance.MachineWithHighestMakeSpan;
     var lowesttask = highestMakeSpanMachine.LowestTask;
@@ -32,6 +32,14 @@ static bool IsPossibleToImprove(Instance instance)
 
     return makeSpanWithoutLowestTask < instance.MakeSpan &&
            makeSpanWithLowestTask < instance.MakeSpan;
+} */
+
+static bool IsPossibleToImprove(Instance instance)
+{
+    var lowestMachineDuration = instance.MachineWithLowestMakeSpan.MakeSpan;
+    var highestMachineHighestTaskDuration = instance.MachineWithHighestMakeSpan.HighestTask!.Duration;
+
+    return lowestMachineDuration + highestMachineHighestTaskDuration < instance.MachineWithHighestMakeSpan.MakeSpan;
 }
 
 static void PrintTasksByMachine(Instance instance, int oldMakeSpan)
