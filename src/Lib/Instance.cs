@@ -5,6 +5,10 @@ public sealed record Instance(
     double R
 )
 {
+    public int MakeSpan => Machines.Max(m => m.MakeSpan);
+    public Machine MachineWithLowestMakeSpan => Machines.OrderBy(m => m.MakeSpan).First();
+    public Machine MachineWithHighestMakeSpan => Machines.OrderByDescending(m => m.MakeSpan).First();
+
     public Machine[] Machines { get; set; } = CreateInstanceMachines(
         NumberOfMachines, R);
 
@@ -14,17 +18,10 @@ public sealed record Instance(
         var machines = new Machine[NumberOfMachines];
         var tasks = CreateTasks(NumberOfMachines, r);
 
-        var tasksPerMachine = tasks.Length / NumberOfMachines;
-        var remainder = tasks.Length % NumberOfMachines;
-        var startIndex = 0;
+        machines[0] = new Machine(0, tasks);
 
-        for (var i = 0; i < NumberOfMachines; i++)
-        {
-            var count = tasksPerMachine + (i < remainder ? 1 : 0);
-            var tasksForMachine = tasks.Skip(startIndex).Take(count).ToArray();
-            machines[i] = new Machine(i, tasksForMachine);
-            startIndex += count;
-        }
+        for (var i = 1; i < NumberOfMachines; i++)
+            machines[i] = new Machine(i, []);
 
         return machines;
     }
