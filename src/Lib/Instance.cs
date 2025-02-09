@@ -39,4 +39,10 @@ public sealed record Instance(
 
         return tasks;
     }
+
+    public static void MoveTask(Machine from, Machine to, Task task)
+    {
+        from.Tasks = from.Tasks.Where(t => t.Id != task.Id).ToArray();
+        to.Tasks = to.Tasks.Append(task).ToArray();
+    }
 };

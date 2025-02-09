@@ -1,31 +1,54 @@
 ﻿using Lib;
 
-var numberOfMachines = RandomHelper.GetRandomFromValues([10, 20, 50]);
-var r = RandomHelper.GetRandomFromValuesDecimal([1.5, 2]);
+var numberOfMachines = 3;//RandomHelper.GetRandomFromValues([10, 20, 50]);
+var r = 4;//RandomHelper.GetRandomFromValuesDecimal([1.5, 2]);
 var instance = new Instance(numberOfMachines, r);
+
+var oldMakeSpan = instance.MakeSpan;
 
 ExecuteBestImprovementSearch(instance);
 
+PrintTasksByMachine(instance, oldMakeSpan);
+
 static void ExecuteBestImprovementSearch(Instance instance)
 {
-    bool improvementIsPossible = IsPossibleToImprove(instance);
-
-    while (improvementIsPossible)
+    while (IsPossibleToImprove(instance))
     {
-        
+        Instance.MoveTask(
+            instance.MachineWithHighestMakeSpan,
+            instance.MachineWithLowestMakeSpan,
+            instance.MachineWithHighestMakeSpan.LowestTask!);
     }
 }
 
 static bool IsPossibleToImprove(Instance instance)
 {
-    var machineWithLowestMakeSpan = instance.MachineWithLowestMakeSpan;
-    var machineWithHighestMakeSpan = instance.MachineWithHighestMakeSpan;
+    var highestMakeSpanMachine = instance.MachineWithHighestMakeSpan;
+    var lowesttask = highestMakeSpanMachine.LowestTask;
+    var makeSpanWithoutLowestTask = highestMakeSpanMachine.MakeSpan - lowesttask?.Duration ?? 0;
 
-    var lowestTask = machineWithLowestMakeSpan.LowestTask;
-    var highestTask = machineWithHighestMakeSpan.HighestTask;
+    var lowestMakeSpanMachine = instance.MachineWithLowestMakeSpan;
+    var makeSpanWithLowestTask = lowestMakeSpanMachine.MakeSpan + lowesttask?.Duration ?? 0;
 
-    if (lowestTask is null || highestTask is null)
-        return false;
+    return makeSpanWithoutLowestTask < instance.MakeSpan &&
+           makeSpanWithLowestTask < instance.MakeSpan;
+}
 
-    return lowestTask.Duration < highestTask.Duration;
+static void PrintTasksByMachine(Instance instance, int oldMakeSpan)
+{
+    Console.WriteLine($"Old MakeSpan: {oldMakeSpan}");
+
+    foreach (var machine in instance.Machines)
+    {
+        Console.WriteLine("-------------------------------------------------");
+        Console.WriteLine($"Machine {machine.Id} tasks:");
+
+        foreach (var task in machine.Tasks)
+            Console.WriteLine($"Task {task.Id} with duration {task.Duration}");
+
+        Console.WriteLine($"Machine Total MakeSpan: {machine.MakeSpan}");
+        Console.WriteLine("-------------------------------------------------");
+    }
+
+    Console.WriteLine($"Instance Total MakeSpan: {instance.MakeSpan}");
 }
