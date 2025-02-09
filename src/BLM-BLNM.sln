@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLM", "BLM\BLM.csproj", "{9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLNM", "BLNM\BLNM.csproj", "{D971B33A-345F-4E1C-B1CA-EAAF8F8AB46B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lib", "Lib\Lib.csproj", "{DB157B1E-54BB-4832-B46D-ED0728665E84}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D971B33A-345F-4E1C-B1CA-EAAF8F8AB46B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D971B33A-345F-4E1C-B1CA-EAAF8F8AB46B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D971B33A-345F-4E1C-B1CA-EAAF8F8AB46B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB157B1E-54BB-4832-B46D-ED0728665E84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB157B1E-54BB-4832-B46D-ED0728665E84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB157B1E-54BB-4832-B46D-ED0728665E84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB157B1E-54BB-4832-B46D-ED0728665E84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
