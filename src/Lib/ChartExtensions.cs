@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Lib;  // Assumed to contain the Instance class and its properties
 
-namespace BLM_BLNM;
+
+// Assumed to contain the Instance class and its properties
+
+namespace Lib;
 
 public static class ChartExtensions
 {
@@ -23,7 +21,9 @@ public static class ChartExtensions
     string outputFilePath,
     long elapsedTime,
     int execNumber,
-    int iterations)
+    int iterations,
+    string scrambleCoeficient = "NA",
+    string algorithmName = "Melhor Melhora")
   {
     // Gather data from the instance.
     var machines = instance.Machines;
@@ -163,7 +163,7 @@ public static class ChartExtensions
     File.WriteAllText(outputFilePath, htmlContent);
     // Append a CSV line to the results file (without overwriting previous content).
     string csvFilePath = "../../../Results/results.csv";
-    string csvLine = $"Melhor Melhora; {(int)Math.Pow(instance.NumberOfMachines, instance.R)}; {instance.NumberOfMachines}; {execNumber}; {elapsedTime}; {iterations}; {instance.MakeSpan}; NA";
+    string csvLine = $"{algorithmName}; {(int)Math.Pow(instance.NumberOfMachines, instance.R)}; {instance.NumberOfMachines}; {execNumber}; {elapsedTime}; {iterations}; {instance.MakeSpan}; {scrambleCoeficient}";
     File.AppendAllText(csvFilePath, csvLine + Environment.NewLine);
   }
 }
