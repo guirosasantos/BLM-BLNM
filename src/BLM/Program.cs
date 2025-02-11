@@ -1,38 +1,37 @@
-﻿using Lib;
+﻿using System.Diagnostics;
+using BLM_BLNM;
+using Lib;
 
-var numberOfMachines = RandomHelper.GetRandomFromValues([10, 20, 50]);
-var r = RandomHelper.GetRandomFromValuesDecimal([1.5, 2]);
-var instance = new Instance(numberOfMachines, r);
 
-var oldMakeSpan = instance.MakeSpan;
-
-ExecuteBestImprovementSearch(instance);
-
-PrintTasksByMachine(instance, oldMakeSpan);
-
-static void ExecuteBestImprovementSearch(Instance instance)
+var instances = new List<Instance>();
+for (int i = 0; i < 10; i++)
 {
+    instances.Add(GenerateRandomInstance());
+}
+
+for (int i = 0; i < 10; i++)
+{
+    var instance = instances[i];
+    ExecuteBestImprovementSearch(instance, i);
+}
+
+
+static void ExecuteBestImprovementSearch(Instance instance, int i)
+{
+    var j = 0;
+    var sw = new Stopwatch();
+    sw.Start();
     while (IsPossibleToImprove(instance))
     {
+        j++;
         Instance.MoveTask(
             instance.MachineWithHighestMakeSpan,
             instance.MachineWithLowestMakeSpan,
             instance.MachineWithHighestMakeSpan.HighestTask!);
     }
+    sw.Stop();
+    ChartExtensions.PlotMachineTaskSums(instance, $"../../../Results/NaoMonotono_{i+1}.html", sw.ElapsedMilliseconds, i, j);
 }
-
-/* static bool IsPossibleToImprove(Instance instance)
-{
-    var highestMakeSpanMachine = instance.MachineWithHighestMakeSpan;
-    var lowesttask = highestMakeSpanMachine.LowestTask;
-    var makeSpanWithoutLowestTask = highestMakeSpanMachine.MakeSpan - lowesttask?.Duration ?? 0;
-
-    var lowestMakeSpanMachine = instance.MachineWithLowestMakeSpan;
-    var makeSpanWithLowestTask = lowestMakeSpanMachine.MakeSpan + lowesttask?.Duration ?? 0;
-
-    return makeSpanWithoutLowestTask < instance.MakeSpan &&
-           makeSpanWithLowestTask < instance.MakeSpan;
-} */
 
 static bool IsPossibleToImprove(Instance instance)
 {
@@ -42,21 +41,10 @@ static bool IsPossibleToImprove(Instance instance)
     return lowestMachineDuration + highestMachineHighestTaskDuration < instance.MachineWithHighestMakeSpan.MakeSpan;
 }
 
-static void PrintTasksByMachine(Instance instance, int oldMakeSpan)
+Instance GenerateRandomInstance()
 {
-    Console.WriteLine($"Old MakeSpan: {oldMakeSpan}");
-
-    foreach (var machine in instance.Machines)
-    {
-        Console.WriteLine("-------------------------------------------------");
-        Console.WriteLine($"Machine {machine.Id} tasks:");
-
-        foreach (var task in machine.Tasks)
-            Console.WriteLine($"Task {task.Id} with duration {task.Duration}");
-
-        Console.WriteLine($"Machine Total MakeSpan: {machine.MakeSpan}");
-        Console.WriteLine("-------------------------------------------------");
-    }
-
-    Console.WriteLine($"Instance Total MakeSpan: {instance.MakeSpan}");
+    var numberOfMachines = RandomHelper.GetRandomFromValues([10, 20, 50]);
+    var r = RandomHelper.GetRandomFromValuesDecimal([1.5, 2]);
+    var instance1 = new Instance(numberOfMachines, r);
+    return instance1;
 }
