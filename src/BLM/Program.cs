@@ -33,6 +33,7 @@ static void ExecuteBestImprovementSearch(Instance instance)
     return makeSpanWithoutLowestTask < instance.MakeSpan &&
            makeSpanWithLowestTask < instance.MakeSpan;
 } */
+//teste git
 
 static bool IsPossibleToImprove(Instance instance)
 {
