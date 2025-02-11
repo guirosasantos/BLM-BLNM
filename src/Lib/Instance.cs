@@ -5,9 +5,19 @@ public sealed record Instance(
     double R
 )
 {
-    public int MakeSpan => Machines.Max(m => m.MakeSpan);
-    public Machine MachineWithLowestMakeSpan => Machines.OrderBy(m => m.MakeSpan).First();
-    public Machine MachineWithHighestMakeSpan => Machines.OrderByDescending(m => m.MakeSpan).First();
+    public int MakeSpan => MachineWithHighestMakeSpan.MakeSpan;
+    public int OriginalMakeSpan => Machines.Sum(m => m.MakeSpan);
+    public Machine MachineWithLowestMakeSpan
+        => Machines
+            .OrderBy(m => m.MakeSpan)
+            .ThenBy(m => m.Tasks.Length)
+            .First();
+
+    public Machine MachineWithHighestMakeSpan
+        => Machines
+            .OrderByDescending(m => m.MakeSpan)
+            .ThenByDescending(m => m.Tasks.Length)
+            .First();
 
     public Machine[] Machines { get; set; } = CreateInstanceMachines(
         NumberOfMachines, R);
