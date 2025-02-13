@@ -32,18 +32,20 @@ public static class HtmlReportGenerator
 
             // 1) Adiciona os dados do BLMReportGroup – como Alpha não se aplica, usamos "0"
             labelsList.Add("0");
-            dataList.Add(blm.InstanceTotalMakeSpan);
+            dataList.Add(blm.AvgFinalMakeSpan);
             string tooltipBLM =
-                $"NumberOfMachines: {blm.NumberOfMachines}\\n" +
+                $"Numero de Máquinas (M): {blm.NumberOfMachines}\\n" +
                 $"R: {blm.R}\\n" +
-                $"NumberOfTasks: {blm.NumberOfTasks}\\n" +
-                $"Variance: {blm.Variance}\\n" +
-                $"OptimumMakeSpan: {blm.OptimumMakeSpan}\\n" +
-                $"InstanceTotalMakeSpan: {blm.InstanceTotalMakeSpan}\\n" +
-                $"OptimumMinusMakeSpan: {blm.OptimumMinusMakeSpan}\\n" +
-                $"MaxTime: {blm.MaxTime}\\n" +
-                $"MinTime: {blm.MinTime}\\n" +
-                $"AvgTime: {blm.AvgTime}";
+                $"Numero de Tarefas (N): {blm.NumberOfTasks}\\n" +
+                $"Variancia Média: {blm.AvgVariance}\\n" +
+                $"Média do MakeSpan Ótimo: {blm.AvgOptimumMakeSpan}\\n" +
+                $"Média MakeSpan Final: {blm.AvgFinalMakeSpan}\\n" +
+                $"Média da Diferença Entre MakeSpan Ótimo e Final: {blm.AvgOptimumMinusMakeSpan}\\n" +
+                $"Tempo Máximo (ms): {blm.MaxTime}\\n" +
+                $"Tempo Mínimo (ms): {blm.MinTime}\\n" +
+                $"Tempo Médio (ms): {blm.AvgTime}\\n" +
+                $"Numero Médio de Iterações: {blm.AvgIterations}";
+            
             tooltipsList.Add(tooltipBLM);
 
             // 2) Adiciona os dados dos BLNMReportGroup (ordenados por Alpha)
@@ -51,19 +53,21 @@ public static class HtmlReportGenerator
             foreach (var blnm in sortedBLNM)
             {
                 labelsList.Add(blnm.Alpha.ToString());
-                dataList.Add(blnm.InstanceTotalMakeSpan);
+                dataList.Add(blnm.AvgFinalMakeSpan);
                 string tooltipBLNM =
-                    $"NumberOfMachines: {blnm.NumberOfMachines}\\n" +
+                    $"Numero de Máquinas (M): {blnm.NumberOfMachines}\\n" +
                     $"R: {blnm.R}\\n" +
                     $"Alpha: {blnm.Alpha}\\n" +
-                    $"NumberOfTasks: {blnm.NumberOfTasks}\\n" +
-                    $"Variance: {blnm.Variance}\\n" +
-                    $"OptimumMakeSpan: {blnm.OptimumMakeSpan}\\n" +
-                    $"InstanceTotalMakeSpan: {blnm.InstanceTotalMakeSpan}\\n" +
-                    $"OptimumMinusMakeSpan: {blnm.OptimumMinusMakeSpan}\\n" +
-                    $"MaxTime: {blnm.MaxTime}\\n" +
-                    $"MinTime: {blnm.MinTime}\\n" +
-                    $"AvgTime: {blnm.AvgTime}";
+                    $"Numero de Tarefas (N): {blnm.NumberOfTasks}\\n" +
+                    $"Variancia Média: {blnm.AvgVariance}\\n" +
+                    $"Média do MakeSpan Ótimo: {blnm.AvgOptimumMakeSpan}\\n" +
+                    $"Média MakeSpan Final: {blnm.AvgFinalMakeSpan}\\n" +
+                    $"Média da Diferença Entre MakeSpan Ótimo e Final: {blnm.AvgOptimumMinusMakeSpan}\\n" +
+                    $"Tempo Máximo (ms): {blnm.MaxTime}\\n" +
+                    $"Tempo Mínimo (ms): {blnm.MinTime}\\n" +
+                    $"Tempo Médio (ms): {blnm.AvgTime}\\n" +
+                    $"TNumero Médio de Iterações: {blnm.AvgIterations}";
+
                 tooltipsList.Add(tooltipBLNM);
             }
 

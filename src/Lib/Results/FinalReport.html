@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <title>Relatório Final</title>
+  <!-- Carrega o Chart.js a partir do CDN -->
+  <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+  <style>
+    body {
+      background-color: #f9f9f9;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    /* Mosaico: container flex com quebra de linha */
+    #chartsContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .chart-container {
+      width: calc(50% - 20px);
+      border: 1px solid #ddd;
+      padding: 10px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }
+    .chart-container h2 {
+      text-align: center;
+    }
+    .info-box {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #eee;
+      border: 1px solid #ccc;
+      display: none;
+      white-space: pre-wrap; /* preserva as quebras de linha */
+    }
+  </style>
+</head>
+<body>
+  <div id='chartsContainer'></div>
+  <script>
+    // Array de gráficos gerado no servidor
+    var charts = [{"title": "M = 10 | R = 1,5", "labels": ["0", "0,1", "0,2", "0,3", "0,4", "0,5", "0,6", "0,7", "0,8", "0,9"], "data": [179, 158, 161, 155, 163, 154, 153, 156, 160, 162], "tooltips": ["Numero de Máquinas (M): 10\nR: 1,5\nNumero de Tarefas (N): 31\nVariancia Média: 39\nMédia do MakeSpan Ótimo: 157\nMédia MakeSpan Final: 179\nMédia da Diferença Entre MakeSpan Ótimo e Final: 21\nTempo Máximo (ms): 3\nTempo Mínimo (ms): 0\nTempo Médio (ms): 0\nNumero Médio de Iterações: 21", "Numero de Máquinas (M): 10\nR: 1,5\nAlpha: 0,1\nNumero de Tarefas (N): 31\nVariancia Média: 12\nMédia do MakeSpan Ótimo: 152\nMédia MakeSpan Final: 158\nMédia da Diferença Entre MakeSpan Ótimo e Final: 5\nTempo Máximo (ms): 45\nTempo Mínimo (ms): 19\nTempo Médio (ms): 25\nNumero Médio de Iterações: 6126", "Numero de Máquinas (M): 10\nR: 1,5\nAlpha: 0,2\nNumero de Tarefas (N): 31\nVariancia Média: 9\nMédia do MakeSpan Ótimo: 156\nMédia MakeSpan Final: 161\nMédia da Diferença Entre MakeSpan Ótimo e Final: 4\nTempo Máximo (ms): 56\nTempo Mínimo (ms): 28\nTempo Médio (ms): 39\nNumero Médio de Iterações: 8767", "Numero de Máquinas (M): 10\nR: 1,5\nAlpha: 0,3\nNumero de Tarefas (N): 31\nVariancia Média: 10\nMédia do MakeSpan Ótimo: 150\nMédia MakeSpan Final: 155\nMédia da Diferença Entre MakeSpan Ótimo e Final: 5\nTempo Máximo (ms): 42\nTempo Mínimo (ms): 26\nTempo Médio (ms): 33\nNumero Médio de Iterações: 7854", "Numero de Máquinas (M): 10\nR: 1,5\nAlpha: 0,4\nNumero de Tarefas (N): 31\nVariancia Média: 11\nMédia do MakeSpan Ótimo: 158\nMédia MakeSpan Final: 163\nMédia da Diferença Entre MakeSpan Ótimo e Final: 5\nTempo Máximo (ms): 81\nTempo Mínimo (ms): 33\nTempo Médio (ms): 47\nNumero Médio de Iterações: 10681", "Numero de Máquinas (M): 10\nR: 1,5\nAlpha: 0,5\nNumero de Tarefas (N): 31\nVariancia Média: 11\nMédia do MakeSpan Ótimo: 149\nMédia MakeSpan Final: 154\nMédia da Diferença Entre MakeSpan Ótimo e Final: 5\nTempo Máximo (ms): 107\nTempo Mínimo (ms): 38\nTempo Médio (ms): 61\nNumero Médio de Iterações: 10587", "Numero de Máquinas (M): 10\nR: 1,5\nAlpha: 0,6\nNumero de Tarefas (N): 31\nVariancia Média: 10\nMédia do MakeSpan Ótimo: 148\nMédia MakeSpan Final: 153\nMédia da Diferença Entre MakeSpan Ótimo e Final: 4\nTempo Máximo (ms): 148\nTempo Mínimo (ms): 35\nTempo Médio (ms): 69\nNumero Médio de Iterações: 13416", "Numero de Máquinas (M): 10\nR: 1,5\nAlpha: 0,7\nNumero de Tarefas (N): 31\nVariancia Média: 11\nMédia do MakeSpan Ótimo: 150\nMédia MakeSpan Final: 156\nMédia da Diferença Entre MakeSpan Ótimo e Final: 5\nTempo Máximo (ms): 83\nTempo Mínimo (ms): 41\nTempo Médio (ms): 61\nNumero Médio de Iterações: 12592", "Numero de Máquinas (M): 10\nR: 1,5\nAlpha: 0,8\nNumero de Tarefas (N): 31\nVariancia Média: 12\nMédia do MakeSpan Ótimo: 154\nMédia MakeSpan Final: 160\nMédia da Diferença Entre MakeSpan Ótimo e Final: 5\nTempo Máximo (ms): 94\nTempo Mínimo (ms): 44\nTempo Médio (ms): 58\nNumero Médio de Iterações: 12256", "Numero de Máquinas (M): 10\nR: 1,5\nAlpha: 0,9\nNumero de Tarefas (N): 31\nVariancia Média: 14\nMédia do MakeSpan Ótimo: 157\nMédia MakeSpan Final: 162\nMédia da Diferença Entre MakeSpan Ótimo e Final: 5\nTempo Máximo (ms): 87\nTempo Mínimo (ms): 44\nTempo Médio (ms): 61\nNumero Médio de Iterações: 12340"]}, {"title": "M = 10 | R = 2", "labels": ["0", "0,1", "0,2", "0,3", "0,4", "0,5", "0,6", "0,7", "0,8", "0,9"], "data": [498, 494, 489, 509, 502, 499, 512, 487, 513, 511], "tooltips": ["Numero de Máquinas (M): 10\nR: 2\nNumero de Tarefas (N): 100\nVariancia Média: 27\nMédia do MakeSpan Ótimo: 484\nMédia MakeSpan Final: 498\nMédia da Diferença Entre MakeSpan Ótimo e Final: 13\nTempo Máximo (ms): 2\nTempo Mínimo (ms): 1\nTempo Médio (ms): 1\nNumero Médio de Iterações: 69", "Numero de Máquinas (M): 10\nR: 2\nAlpha: 0,1\nNumero de Tarefas (N): 100\nVariancia Média: 3\nMédia do MakeSpan Ótimo: 492\nMédia MakeSpan Final: 494\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 154\nTempo Mínimo (ms): 80\nTempo Médio (ms): 103\nNumero Médio de Iterações: 14191", "Numero de Máquinas (M): 10\nR: 2\nAlpha: 0,2\nNumero de Tarefas (N): 100\nVariancia Média: 3\nMédia do MakeSpan Ótimo: 487\nMédia MakeSpan Final: 489\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 211\nTempo Mínimo (ms): 111\nTempo Médio (ms): 156\nNumero Médio de Iterações: 19159", "Numero de Máquinas (M): 10\nR: 2\nAlpha: 0,3\nNumero de Tarefas (N): 100\nVariancia Média: 3\nMédia do MakeSpan Ótimo: 507\nMédia MakeSpan Final: 509\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 249\nTempo Mínimo (ms): 104\nTempo Médio (ms): 169\nNumero Médio de Iterações: 22268", "Numero de Máquinas (M): 10\nR: 2\nAlpha: 0,4\nNumero de Tarefas (N): 100\nVariancia Média: 3\nMédia do MakeSpan Ótimo: 500\nMédia MakeSpan Final: 502\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 234\nTempo Mínimo (ms): 127\nTempo Médio (ms): 172\nNumero Médio de Iterações: 21547", "Numero de Máquinas (M): 10\nR: 2\nAlpha: 0,5\nNumero de Tarefas (N): 100\nVariancia Média: 3\nMédia do MakeSpan Ótimo: 496\nMédia MakeSpan Final: 499\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 267\nTempo Mínimo (ms): 148\nTempo Médio (ms): 194\nNumero Médio de Iterações: 20471", "Numero de Máquinas (M): 10\nR: 2\nAlpha: 0,6\nNumero de Tarefas (N): 100\nVariancia Média: 3\nMédia do MakeSpan Ótimo: 510\nMédia MakeSpan Final: 512\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 312\nTempo Mínimo (ms): 165\nTempo Médio (ms): 235\nNumero Médio de Iterações: 20904", "Numero de Máquinas (M): 10\nR: 2\nAlpha: 0,7\nNumero de Tarefas (N): 100\nVariancia Média: 3\nMédia do MakeSpan Ótimo: 485\nMédia MakeSpan Final: 487\nMédia da Diferença Entre MakeSpan Ótimo e Final: 1\nTempo Máximo (ms): 294\nTempo Mínimo (ms): 148\nTempo Médio (ms): 214\nNumero Médio de Iterações: 24697", "Numero de Máquinas (M): 10\nR: 2\nAlpha: 0,8\nNumero de Tarefas (N): 100\nVariancia Média: 4\nMédia do MakeSpan Ótimo: 510\nMédia MakeSpan Final: 513\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 307\nTempo Mínimo (ms): 175\nTempo Médio (ms): 237\nNumero Médio de Iterações: 26025", "Numero de Máquinas (M): 10\nR: 2\nAlpha: 0,9\nNumero de Tarefas (N): 100\nVariancia Média: 4\nMédia do MakeSpan Ótimo: 509\nMédia MakeSpan Final: 511\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 238\nTempo Mínimo (ms): 177\nTempo Médio (ms): 207\nNumero Médio de Iterações: 22962"]}, {"title": "M = 20 | R = 1,5", "labels": ["0", "0,1", "0,2", "0,3", "0,4", "0,5", "0,6", "0,7", "0,8", "0,9"], "data": [233, 228, 234, 229, 222, 225, 231, 231, 234, 228], "tooltips": ["Numero de Máquinas (M): 20\nR: 1,5\nNumero de Tarefas (N): 89\nVariancia Média: 28\nMédia do MakeSpan Ótimo: 222\nMédia MakeSpan Final: 233\nMédia da Diferença Entre MakeSpan Ótimo e Final: 11\nTempo Máximo (ms): 3\nTempo Mínimo (ms): 1\nTempo Médio (ms): 1\nNumero Médio de Iterações: 69", "Numero de Máquinas (M): 20\nR: 1,5\nAlpha: 0,1\nNumero de Tarefas (N): 89\nVariancia Média: 15\nMédia do MakeSpan Ótimo: 220\nMédia MakeSpan Final: 228\nMédia da Diferença Entre MakeSpan Ótimo e Final: 7\nTempo Máximo (ms): 136\nTempo Mínimo (ms): 73\nTempo Médio (ms): 107\nNumero Médio de Iterações: 12939", "Numero de Máquinas (M): 20\nR: 1,5\nAlpha: 0,2\nNumero de Tarefas (N): 89\nVariancia Média: 18\nMédia do MakeSpan Ótimo: 227\nMédia MakeSpan Final: 234\nMédia da Diferença Entre MakeSpan Ótimo e Final: 7\nTempo Máximo (ms): 248\nTempo Mínimo (ms): 100\nTempo Médio (ms): 134\nNumero Médio de Iterações: 16396", "Numero de Máquinas (M): 20\nR: 1,5\nAlpha: 0,3\nNumero de Tarefas (N): 89\nVariancia Média: 14\nMédia do MakeSpan Ótimo: 222\nMédia MakeSpan Final: 229\nMédia da Diferença Entre MakeSpan Ótimo e Final: 6\nTempo Máximo (ms): 352\nTempo Mínimo (ms): 137\nTempo Médio (ms): 203\nNumero Médio de Iterações: 25600", "Numero de Máquinas (M): 20\nR: 1,5\nAlpha: 0,4\nNumero de Tarefas (N): 89\nVariancia Média: 12\nMédia do MakeSpan Ótimo: 216\nMédia MakeSpan Final: 222\nMédia da Diferença Entre MakeSpan Ótimo e Final: 5\nTempo Máximo (ms): 400\nTempo Mínimo (ms): 138\nTempo Médio (ms): 235\nNumero Médio de Iterações: 27395", "Numero de Máquinas (M): 20\nR: 1,5\nAlpha: 0,5\nNumero de Tarefas (N): 89\nVariancia Média: 15\nMédia do MakeSpan Ótimo: 218\nMédia MakeSpan Final: 225\nMédia da Diferença Entre MakeSpan Ótimo e Final: 6\nTempo Máximo (ms): 312\nTempo Mínimo (ms): 141\nTempo Médio (ms): 243\nNumero Médio de Iterações: 25783", "Numero de Máquinas (M): 20\nR: 1,5\nAlpha: 0,6\nNumero de Tarefas (N): 89\nVariancia Média: 16\nMédia do MakeSpan Ótimo: 224\nMédia MakeSpan Final: 231\nMédia da Diferença Entre MakeSpan Ótimo e Final: 7\nTempo Máximo (ms): 421\nTempo Mínimo (ms): 151\nTempo Médio (ms): 233\nNumero Médio de Iterações: 25469", "Numero de Máquinas (M): 20\nR: 1,5\nAlpha: 0,7\nNumero de Tarefas (N): 89\nVariancia Média: 16\nMédia do MakeSpan Ótimo: 224\nMédia MakeSpan Final: 231\nMédia da Diferença Entre MakeSpan Ótimo e Final: 7\nTempo Máximo (ms): 356\nTempo Mínimo (ms): 154\nTempo Médio (ms): 246\nNumero Médio de Iterações: 27547", "Numero de Máquinas (M): 20\nR: 1,5\nAlpha: 0,8\nNumero de Tarefas (N): 89\nVariancia Média: 17\nMédia do MakeSpan Ótimo: 226\nMédia MakeSpan Final: 234\nMédia da Diferença Entre MakeSpan Ótimo e Final: 8\nTempo Máximo (ms): 310\nTempo Mínimo (ms): 166\nTempo Médio (ms): 231\nNumero Médio de Iterações: 25558", "Numero de Máquinas (M): 20\nR: 1,5\nAlpha: 0,9\nNumero de Tarefas (N): 89\nVariancia Média: 19\nMédia do MakeSpan Ótimo: 220\nMédia MakeSpan Final: 228\nMédia da Diferença Entre MakeSpan Ótimo e Final: 8\nTempo Máximo (ms): 568\nTempo Mínimo (ms): 175\nTempo Médio (ms): 319\nNumero Médio de Iterações: 35304"]}, {"title": "M = 20 | R = 2", "labels": ["0", "0,1", "0,2", "0,3", "0,4", "0,5", "0,6", "0,7", "0,8", "0,9"], "data": [1018, 1013, 1017, 986, 997, 1003, 1001, 985, 1002, 992], "tooltips": ["Numero de Máquinas (M): 20\nR: 2\nNumero de Tarefas (N): 400\nVariancia Média: 21\nMédia do MakeSpan Ótimo: 1008\nMédia MakeSpan Final: 1018\nMédia da Diferença Entre MakeSpan Ótimo e Final: 9\nTempo Máximo (ms): 29\nTempo Mínimo (ms): 12\nTempo Médio (ms): 26\nNumero Médio de Iterações: 314", "Numero de Máquinas (M): 20\nR: 2\nAlpha: 0,1\nNumero de Tarefas (N): 400\nVariancia Média: 7\nMédia do MakeSpan Ótimo: 1010\nMédia MakeSpan Final: 1013\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 770\nTempo Mínimo (ms): 34\nTempo Médio (ms): 505\nNumero Médio de Iterações: 41584", "Numero de Máquinas (M): 20\nR: 2\nAlpha: 0,2\nNumero de Tarefas (N): 400\nVariancia Média: 5\nMédia do MakeSpan Ótimo: 1014\nMédia MakeSpan Final: 1017\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 932\nTempo Mínimo (ms): 30\nTempo Médio (ms): 484\nNumero Médio de Iterações: 49130", "Numero de Máquinas (M): 20\nR: 2\nAlpha: 0,3\nNumero de Tarefas (N): 400\nVariancia Média: 5\nMédia do MakeSpan Ótimo: 983\nMédia MakeSpan Final: 986\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 965\nTempo Mínimo (ms): 278\nTempo Médio (ms): 702\nNumero Médio de Iterações: 57188", "Numero de Máquinas (M): 20\nR: 2\nAlpha: 0,4\nNumero de Tarefas (N): 400\nVariancia Média: 5\nMédia do MakeSpan Ótimo: 995\nMédia MakeSpan Final: 997\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 961\nTempo Mínimo (ms): 126\nTempo Médio (ms): 360\nNumero Médio de Iterações: 56872", "Numero de Máquinas (M): 20\nR: 2\nAlpha: 0,5\nNumero de Tarefas (N): 400\nVariancia Média: 4\nMédia do MakeSpan Ótimo: 1000\nMédia MakeSpan Final: 1003\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 883\nTempo Mínimo (ms): 30\nTempo Médio (ms): 362\nNumero Médio de Iterações: 60644", "Numero de Máquinas (M): 20\nR: 2\nAlpha: 0,6\nNumero de Tarefas (N): 400\nVariancia Média: 5\nMédia do MakeSpan Ótimo: 998\nMédia MakeSpan Final: 1001\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 804\nTempo Mínimo (ms): 15\nTempo Médio (ms): 188\nNumero Médio de Iterações: 55100", "Numero de Máquinas (M): 20\nR: 2\nAlpha: 0,7\nNumero de Tarefas (N): 400\nVariancia Média: 4\nMédia do MakeSpan Ótimo: 983\nMédia MakeSpan Final: 985\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 592\nTempo Mínimo (ms): 18\nTempo Médio (ms): 266\nNumero Médio de Iterações: 63175", "Numero de Máquinas (M): 20\nR: 2\nAlpha: 0,8\nNumero de Tarefas (N): 400\nVariancia Média: 5\nMédia do MakeSpan Ótimo: 999\nMédia MakeSpan Final: 1002\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 850\nTempo Mínimo (ms): 152\nTempo Médio (ms): 416\nNumero Médio de Iterações: 64817", "Numero de Máquinas (M): 20\nR: 2\nAlpha: 0,9\nNumero de Tarefas (N): 400\nVariancia Média: 4\nMédia do MakeSpan Ótimo: 990\nMédia MakeSpan Final: 992\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 827\nTempo Mínimo (ms): 189\nTempo Médio (ms): 372\nNumero Médio de Iterações: 67703"]}, {"title": "M = 50 | R = 1,5", "labels": ["0", "0,1", "0,2", "0,3", "0,4", "0,5", "0,6", "0,7", "0,8", "0,9"], "data": [356, 365, 358, 359, 357, 363, 361, 364, 362, 367], "tooltips": ["Numero de Máquinas (M): 50\nR: 1,5\nNumero de Tarefas (N): 353\nVariancia Média: 15\nMédia do MakeSpan Ótimo: 346\nMédia MakeSpan Final: 356\nMédia da Diferença Entre MakeSpan Ótimo e Final: 10\nTempo Máximo (ms): 11\nTempo Mínimo (ms): 10\nTempo Médio (ms): 10\nNumero Médio de Iterações: 305", "Numero de Máquinas (M): 50\nR: 1,5\nAlpha: 0,1\nNumero de Tarefas (N): 353\nVariancia Média: 17\nMédia do MakeSpan Ótimo: 355\nMédia MakeSpan Final: 365\nMédia da Diferença Entre MakeSpan Ótimo e Final: 9\nTempo Máximo (ms): 786\nTempo Mínimo (ms): 256\nTempo Médio (ms): 664\nNumero Médio de Iterações: 35277", "Numero de Máquinas (M): 50\nR: 1,5\nAlpha: 0,2\nNumero de Tarefas (N): 353\nVariancia Média: 17\nMédia do MakeSpan Ótimo: 348\nMédia MakeSpan Final: 358\nMédia da Diferença Entre MakeSpan Ótimo e Final: 9\nTempo Máximo (ms): 912\nTempo Mínimo (ms): 20\nTempo Médio (ms): 555\nNumero Médio de Iterações: 63145", "Numero de Máquinas (M): 50\nR: 1,5\nAlpha: 0,3\nNumero de Tarefas (N): 353\nVariancia Média: 16\nMédia do MakeSpan Ótimo: 350\nMédia MakeSpan Final: 359\nMédia da Diferença Entre MakeSpan Ótimo e Final: 9\nTempo Máximo (ms): 875\nTempo Mínimo (ms): 93\nTempo Médio (ms): 481\nNumero Médio de Iterações: 64643", "Numero de Máquinas (M): 50\nR: 1,5\nAlpha: 0,4\nNumero de Tarefas (N): 353\nVariancia Média: 15\nMédia do MakeSpan Ótimo: 348\nMédia MakeSpan Final: 357\nMédia da Diferença Entre MakeSpan Ótimo e Final: 9\nTempo Máximo (ms): 886\nTempo Mínimo (ms): 52\nTempo Médio (ms): 471\nNumero Médio de Iterações: 73721", "Numero de Máquinas (M): 50\nR: 1,5\nAlpha: 0,5\nNumero de Tarefas (N): 353\nVariancia Média: 16\nMédia do MakeSpan Ótimo: 354\nMédia MakeSpan Final: 363\nMédia da Diferença Entre MakeSpan Ótimo e Final: 9\nTempo Máximo (ms): 972\nTempo Mínimo (ms): 28\nTempo Médio (ms): 439\nNumero Médio de Iterações: 72463", "Numero de Máquinas (M): 50\nR: 1,5\nAlpha: 0,6\nNumero de Tarefas (N): 353\nVariancia Média: 17\nMédia do MakeSpan Ótimo: 351\nMédia MakeSpan Final: 361\nMédia da Diferença Entre MakeSpan Ótimo e Final: 9\nTempo Máximo (ms): 951\nTempo Mínimo (ms): 25\nTempo Médio (ms): 372\nNumero Médio de Iterações: 69246", "Numero de Máquinas (M): 50\nR: 1,5\nAlpha: 0,7\nNumero de Tarefas (N): 353\nVariancia Média: 16\nMédia do MakeSpan Ótimo: 355\nMédia MakeSpan Final: 364\nMédia da Diferença Entre MakeSpan Ótimo e Final: 9\nTempo Máximo (ms): 692\nTempo Mínimo (ms): 215\nTempo Médio (ms): 463\nNumero Médio de Iterações: 86117", "Numero de Máquinas (M): 50\nR: 1,5\nAlpha: 0,8\nNumero de Tarefas (N): 353\nVariancia Média: 16\nMédia do MakeSpan Ótimo: 353\nMédia MakeSpan Final: 362\nMédia da Diferença Entre MakeSpan Ótimo e Final: 8\nTempo Máximo (ms): 809\nTempo Mínimo (ms): 2\nTempo Médio (ms): 424\nNumero Médio de Iterações: 84929", "Numero de Máquinas (M): 50\nR: 1,5\nAlpha: 0,9\nNumero de Tarefas (N): 353\nVariancia Média: 17\nMédia do MakeSpan Ótimo: 358\nMédia MakeSpan Final: 367\nMédia da Diferença Entre MakeSpan Ótimo e Final: 9\nTempo Máximo (ms): 924\nTempo Mínimo (ms): 104\nTempo Médio (ms): 651\nNumero Médio de Iterações: 80574"]}, {"title": "M = 50 | R = 2", "labels": ["0", "0,1", "0,2", "0,3", "0,4", "0,5", "0,6", "0,7", "0,8", "0,9"], "data": [2504, 2510, 2497, 2494, 2502, 2506, 2502, 2498, 2502, 2503], "tooltips": ["Numero de Máquinas (M): 50\nR: 2\nNumero de Tarefas (N): 2500\nVariancia Média: 12\nMédia do MakeSpan Ótimo: 2498\nMédia MakeSpan Final: 2504\nMédia da Diferença Entre MakeSpan Ótimo e Final: 6\nTempo Máximo (ms): 280\nTempo Mínimo (ms): 184\nTempo Médio (ms): 196\nNumero Médio de Iterações: 2162", "Numero de Máquinas (M): 50\nR: 2\nAlpha: 0,1\nNumero de Tarefas (N): 2500\nVariancia Média: 8\nMédia do MakeSpan Ótimo: 2507\nMédia MakeSpan Final: 2510\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 812\nTempo Mínimo (ms): 61\nTempo Médio (ms): 420\nNumero Médio de Iterações: 159012", "Numero de Máquinas (M): 50\nR: 2\nAlpha: 0,2\nNumero de Tarefas (N): 2500\nVariancia Média: 7\nMédia do MakeSpan Ótimo: 2494\nMédia MakeSpan Final: 2497\nMédia da Diferença Entre MakeSpan Ótimo e Final: 3\nTempo Máximo (ms): 855\nTempo Mínimo (ms): 67\nTempo Médio (ms): 461\nNumero Médio de Iterações: 178755", "Numero de Máquinas (M): 50\nR: 2\nAlpha: 0,3\nNumero de Tarefas (N): 2500\nVariancia Média: 7\nMédia do MakeSpan Ótimo: 2492\nMédia MakeSpan Final: 2494\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 889\nTempo Mínimo (ms): 335\nTempo Médio (ms): 630\nNumero Médio de Iterações: 188984", "Numero de Máquinas (M): 50\nR: 2\nAlpha: 0,4\nNumero de Tarefas (N): 2500\nVariancia Média: 8\nMédia do MakeSpan Ótimo: 2499\nMédia MakeSpan Final: 2502\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 936\nTempo Mínimo (ms): 49\nTempo Médio (ms): 440\nNumero Médio de Iterações: 208469", "Numero de Máquinas (M): 50\nR: 2\nAlpha: 0,5\nNumero de Tarefas (N): 2500\nVariancia Média: 8\nMédia do MakeSpan Ótimo: 2503\nMédia MakeSpan Final: 2506\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 911\nTempo Mínimo (ms): 37\nTempo Médio (ms): 540\nNumero Médio de Iterações: 197278", "Numero de Máquinas (M): 50\nR: 2\nAlpha: 0,6\nNumero de Tarefas (N): 2500\nVariancia Média: 9\nMédia do MakeSpan Ótimo: 2500\nMédia MakeSpan Final: 2502\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 916\nTempo Mínimo (ms): 268\nTempo Médio (ms): 612\nNumero Médio de Iterações: 205397", "Numero de Máquinas (M): 50\nR: 2\nAlpha: 0,7\nNumero de Tarefas (N): 2500\nVariancia Média: 8\nMédia do MakeSpan Ótimo: 2496\nMédia MakeSpan Final: 2498\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 804\nTempo Mínimo (ms): 7\nTempo Médio (ms): 450\nNumero Médio de Iterações: 229606", "Numero de Máquinas (M): 50\nR: 2\nAlpha: 0,8\nNumero de Tarefas (N): 2500\nVariancia Média: 7\nMédia do MakeSpan Ótimo: 2499\nMédia MakeSpan Final: 2502\nMédia da Diferença Entre MakeSpan Ótimo e Final: 2\nTempo Máximo (ms): 951\nTempo Mínimo (ms): 9\nTempo Médio (ms): 488\nNumero Médio de Iterações: 268940", "Numero de Máquinas (M): 50\nR: 2\nAlpha: 0,9\nNumero de Tarefas (N): 2500\nVariancia Média: 5\nMédia do MakeSpan Ótimo: 2500\nMédia MakeSpan Final: 2503\nMédia da Diferença Entre MakeSpan Ótimo e Final: 3\nTempo Máximo (ms): 967\nTempo Mínimo (ms): 122\nTempo Médio (ms): 479\nNumero Médio de Iterações: 274231"]}];
+
+    var container = document.getElementById('chartsContainer');
+    charts.forEach(function(chart, index) {
+         // Cria um elemento div para cada gráfico
+         var div = document.createElement('div');
+         div.className = 'chart-container';
+
+         // Cria o título do gráfico
+         var title = document.createElement('h2');
+         title.textContent = chart.title;
+         div.appendChild(title);
+
+         // Cria o canvas para o gráfico
+         var canvas = document.createElement('canvas');
+         canvas.id = 'chart_' + index;
+         canvas.width = 600;
+         canvas.height = 400;
+         div.appendChild(canvas);
+
+         // Cria a div que exibirá os detalhes ao clicar na barra
+         var infoBox = document.createElement('div');
+         infoBox.id = 'infoBox_' + index;
+         infoBox.className = 'info-box';
+         div.appendChild(infoBox);
+
+         container.appendChild(div);
+
+         // Calcula as cores: a barra com o menor valor em chart.data ficará em vermelho
+         var minVal = Math.min.apply(null, chart.data);
+         var backgroundColors = chart.data.map(function(val) {
+              return (val === minVal) ? 'rgba(255, 99, 132, 0.2)' : 'rgba(54, 162, 235, 0.2)';
+         });
+         var borderColors = chart.data.map(function(val) {
+              return (val === minVal) ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)';
+         });
+
+         // Cria o gráfico de barras com Chart.js e define um callback para o clique
+         var ctx = canvas.getContext('2d');
+         var myChart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                  labels: chart.labels,
+                  datasets: [{
+                      label: 'Instance Total MakeSpan',
+                      data: chart.data,
+                      backgroundColor: backgroundColors,
+                      borderColor: borderColors,
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true
+                      }
+                  },
+                  onClick: function(evt, activeElements) {
+                      if(activeElements.length > 0) {
+                          var idx = activeElements[0].index;
+                          var info = chart.tooltips[idx];
+                          // Atualiza e exibe a info box com as informações detalhadas
+                          var infoBox = document.getElementById('infoBox_' + index);
+                          infoBox.innerHTML = info.replace(/\\n/g, '<br>');
+                          infoBox.style.display = 'block';
+                      }
+                  },
+                  plugins: {
+                      tooltip: {
+                          enabled: false // Desabilita o tooltip padrão
+                      }
+                  }
+              }
+         });
+    });
+  </script>
+</body>
+</html>
