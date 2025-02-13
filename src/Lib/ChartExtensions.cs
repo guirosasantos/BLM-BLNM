@@ -1,96 +1,94 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Lib; // Certifique-se de usar o namespace correto
 
-
-// Assumed to contain the Instance class and its properties
-
-namespace Lib;
-
-public static class ChartExtensions
+public static class HtmlReportGenerator
 {
-  /// <summary>
-  /// Generates an HTML file that displays a vertical bar chart (using Chart.js) of machine task sums.
-  /// The maximum task sum is highlighted in red. Extra annotations are added below the chart.
-  /// Also appends a CSV-formatted line to a CSV file without erasing previous content.
-  /// </summary>
-  /// <param name="instance">The instance containing machine data.</param>
-  /// <param name="outputFilePath">The path (including filename) where the HTML file will be saved.</param>
-  /// <param name="elapsedTime">Elapsed time for execution.</param>
-  /// <param name="execNumber">Execution number.</param>
-  /// <param name="iterations">Number of iterations.</param>
-  public static void PlotMachineTaskSums(
-    Instance instance,
-    string outputFilePath,
-    long elapsedTime,
-    int execNumber,
-    int iterations,
-    string scrambleCoeficient = "NA",
-    string algorithmName = "Melhor Melhora")
-  {
-    // Gather data from the instance.
-    var machines = instance.Machines;
-    var labels = new List<string>();
-    var data = new List<double>();
-
-    double maxTaskSum = double.MinValue;
-    int maxIndex = -1;
-    int index = 0;
-
-    foreach (var machine in machines)
+    /// <summary>
+    /// Gera um arquivo HTML com um gráfico para cada FinalReportGroup.
+    /// Cada gráfico terá o título "X maquinas ; Y R" (extraído do BLMReportGroup) e exibirá:
+    /// - No eixo X: as barras correspondentes aos valores de Alpha (para o BLMReportGroup será usado "0")
+    /// - No eixo Y: o InstanceTotalMakeSpan.
+    /// Ao clicar em uma barra, um quadradinho abaixo do gráfico mostrará os detalhes do grupo.
+    /// A coluna com o menor valor de InstanceTotalMakeSpan será destacada em vermelho.
+    /// </summary>
+    /// <param name="finalReportGroups">Lista de FinalReportGroup</param>
+    /// <param name="outputFilePath">Caminho do arquivo HTML de saída</param>
+    public static void GerarRelatoriosFinais(List<FinalReportGroup> finalReportGroups, string outputFilePath)
     {
-      // Assuming machine.Id is an integer identifier and machine.MakeSpan is the task sum.
-      labels.Add(machine.Id.ToString());
-      data.Add(machine.MakeSpan);
+        // Para cada FinalReportGroup, preparamos um objeto com as informações necessárias para o gráfico.
+        var chartJsonItems = new List<string>();
 
-      if (machine.MakeSpan > maxTaskSum)
-      {
-        maxTaskSum = machine.MakeSpan;
-        maxIndex = index;
-      }
-      index++;
-    }
-            
-    var variance = instance.MachineWithHighestMakeSpan.MakeSpan - instance.MachineWithLowestMakeSpan.MakeSpan;
-    var optimumMakespan = instance.OriginalMakeSpan / instance.NumberOfMachines;
-            
-    Console.WriteLine($"Number of Machines: {instance.NumberOfMachines}");
-    Console.WriteLine($"R: {instance.R}");
-    Console.WriteLine($"Makespan Variance: {variance}");
-    Console.WriteLine($"Optimum Makespan: {optimumMakespan}");
-    Console.WriteLine($"Instance Total MakeSpan: {instance.MakeSpan}");
-    Console.WriteLine($"Optimum - Makespan : {instance.MakeSpan - optimumMakespan}");
-    Console.WriteLine("-------------------------------------------------");
+        foreach (var finalGroup in finalReportGroups)
+        {
+            var blm = finalGroup.BLMReportGroup;
 
-    // Build color arrays so that the maximum value is highlighted.
-    var backgroundColors = new List<string>();
-    var borderColors = new List<string>();
+            // Listas para armazenar os dados do gráfico
+            var labelsList = new List<string>();
+            var dataList = new List<int>();
+            var tooltipsList = new List<string>();
 
-    for (int i = 0; i < data.Count; i++)
-    {
-      if (i == maxIndex)
-      {
-        backgroundColors.Add("rgba(255, 99, 132, 0.2)"); // red-ish background
-        borderColors.Add("rgba(255, 99, 132, 1)");        // red border
-      }
-      else
-      {
-        backgroundColors.Add("rgba(54, 162, 235, 0.2)");  // blue-ish background
-        borderColors.Add("rgba(54, 162, 235, 1)");         // blue border
-      }
-    }
+            // 1) Adiciona os dados do BLMReportGroup – como Alpha não se aplica, usamos "0"
+            labelsList.Add("0");
+            dataList.Add(blm.InstanceTotalMakeSpan);
+            string tooltipBLM =
+                $"NumberOfMachines: {blm.NumberOfMachines}\\n" +
+                $"R: {blm.R}\\n" +
+                $"NumberOfTasks: {blm.NumberOfTasks}\\n" +
+                $"Variance: {blm.Variance}\\n" +
+                $"OptimumMakeSpan: {blm.OptimumMakeSpan}\\n" +
+                $"InstanceTotalMakeSpan: {blm.InstanceTotalMakeSpan}\\n" +
+                $"OptimumMinusMakeSpan: {blm.OptimumMinusMakeSpan}\\n" +
+                $"MaxTime: {blm.MaxTime}\\n" +
+                $"MinTime: {blm.MinTime}\\n" +
+                $"AvgTime: {blm.AvgTime}";
+            tooltipsList.Add(tooltipBLM);
 
-    // Convert lists to JavaScript array literals.
-    string jsLabels = "[" + string.Join(", ", labels.Select(l => $"\"{l}\"")) + "]";
-    string jsData = "[" + string.Join(", ", data) + "]";
-    string jsBackgroundColors = "[" + string.Join(", ", backgroundColors.Select(c => $"\"{c}\"")) + "]";
-    string jsBorderColors = "[" + string.Join(", ", borderColors.Select(c => $"\"{c}\"")) + "]";
+            // 2) Adiciona os dados dos BLNMReportGroup (ordenados por Alpha)
+            var sortedBLNM = finalGroup.BLNMReportGroups.OrderBy(r => r.Alpha).ToList();
+            foreach (var blnm in sortedBLNM)
+            {
+                labelsList.Add(blnm.Alpha.ToString());
+                dataList.Add(blnm.InstanceTotalMakeSpan);
+                string tooltipBLNM =
+                    $"NumberOfMachines: {blnm.NumberOfMachines}\\n" +
+                    $"R: {blnm.R}\\n" +
+                    $"Alpha: {blnm.Alpha}\\n" +
+                    $"NumberOfTasks: {blnm.NumberOfTasks}\\n" +
+                    $"Variance: {blnm.Variance}\\n" +
+                    $"OptimumMakeSpan: {blnm.OptimumMakeSpan}\\n" +
+                    $"InstanceTotalMakeSpan: {blnm.InstanceTotalMakeSpan}\\n" +
+                    $"OptimumMinusMakeSpan: {blnm.OptimumMinusMakeSpan}\\n" +
+                    $"MaxTime: {blnm.MaxTime}\\n" +
+                    $"MinTime: {blnm.MinTime}\\n" +
+                    $"AvgTime: {blnm.AvgTime}";
+                tooltipsList.Add(tooltipBLNM);
+            }
 
-    // Create the HTML content.
-    string htmlContent = $@"
+            // Converte as listas para arrays JSON (strings)
+            string labelsJson = "[" + string.Join(", ", labelsList.Select(s => $"\"{s}\"")) + "]";
+            string dataJson = "[" + string.Join(", ", dataList) + "]";
+            string tooltipsJson = "[" + string.Join(", ", tooltipsList.Select(t => $"\"{t}\"")) + "]";
+
+            // Define o título do gráfico usando os dados do BLMReportGroup
+            string title = $"M = {blm.NumberOfMachines} | R = {blm.R}";
+            string chartJson = $"{{\"title\": \"{title}\", \"labels\": {labelsJson}, \"data\": {dataJson}, \"tooltips\": {tooltipsJson}}}";
+            chartJsonItems.Add(chartJson);
+        }
+
+        // Constrói a string JSON representando o array de gráficos
+        string chartsJson = "[" + string.Join(", ", chartJsonItems) + "]";
+
+        // Monta o conteúdo HTML com os gráficos organizados em mosaico (2 por linha)
+        string htmlContent = $@"
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset='utf-8'>
-  <title>Machine Task Sums</title>
-  <!-- Load Chart.js from CDN -->
+  <title>Relatório Final</title>
+  <!-- Carrega o Chart.js a partir do CDN -->
   <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
   <style>
     body {{
@@ -98,72 +96,117 @@ public static class ChartExtensions
       font-family: Arial, sans-serif;
       padding: 20px;
     }}
-    .chart-container {{
-      width: 600px;
-      margin: auto;
+    /* Mosaico: container flex com quebra de linha */
+    #chartsContainer {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
     }}
-    .footer-annotations {{
+    .chart-container {{
+      width: calc(50% - 20px);
+      border: 1px solid #ddd;
+      padding: 10px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }}
+    .chart-container h2 {{
       text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-      color: #333;
+    }}
+    .info-box {{
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #eee;
+      border: 1px solid #ccc;
+      display: none;
+      white-space: pre-wrap; /* preserva as quebras de linha */
     }}
   </style>
 </head>
 <body>
-  <div class='chart-container'>
-    <canvas id='myChart' width='600' height='400'></canvas>
-  </div>
-  <div class='footer-annotations'>
-    <p>Number of Machines: {instance.NumberOfMachines}</p>
-    <p>R: {instance.R}</p>
-    <p>Makespan Variance: {variance}</p>
-    <p>Optimum Makespan: {optimumMakespan}</p>
-    <p>Instance Total MakeSpan: {instance.MakeSpan}</p>
-    <p>Optimum - Makespan : {instance.MakeSpan - optimumMakespan}</p>
-  </div>
+  <div id='chartsContainer'></div>
   <script>
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var myChart = new Chart(ctx, {{
-      type: 'bar',
-      data: {{
-        labels: {jsLabels},
-        datasets: [{{
-          label: 'Task Sum',
-          data: {jsData},
-          backgroundColor: {jsBackgroundColors},
-          borderColor: {jsBorderColors},
-          borderWidth: 1
-        }}]
-      }},
-      options: {{
-        responsive: false,
-        scales: {{
-          y: {{
-            beginAtZero: true
-          }}
-        }},
-        plugins: {{
-          legend: {{
-            display: true,
-            position: 'top'
-          }},
-          title: {{
-            display: true,
-            text: 'Machine Task Sums'
-          }}
-        }}
-      }}
+    // Array de gráficos gerado no servidor
+    var charts = {chartsJson};
+
+    var container = document.getElementById('chartsContainer');
+    charts.forEach(function(chart, index) {{
+         // Cria um elemento div para cada gráfico
+         var div = document.createElement('div');
+         div.className = 'chart-container';
+
+         // Cria o título do gráfico
+         var title = document.createElement('h2');
+         title.textContent = chart.title;
+         div.appendChild(title);
+
+         // Cria o canvas para o gráfico
+         var canvas = document.createElement('canvas');
+         canvas.id = 'chart_' + index;
+         canvas.width = 600;
+         canvas.height = 400;
+         div.appendChild(canvas);
+
+         // Cria a div que exibirá os detalhes ao clicar na barra
+         var infoBox = document.createElement('div');
+         infoBox.id = 'infoBox_' + index;
+         infoBox.className = 'info-box';
+         div.appendChild(infoBox);
+
+         container.appendChild(div);
+
+         // Calcula as cores: a barra com o menor valor em chart.data ficará em vermelho
+         var minVal = Math.min.apply(null, chart.data);
+         var backgroundColors = chart.data.map(function(val) {{
+              return (val === minVal) ? 'rgba(255, 99, 132, 0.2)' : 'rgba(54, 162, 235, 0.2)';
+         }});
+         var borderColors = chart.data.map(function(val) {{
+              return (val === minVal) ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)';
+         }});
+
+         // Cria o gráfico de barras com Chart.js e define um callback para o clique
+         var ctx = canvas.getContext('2d');
+         var myChart = new Chart(ctx, {{
+              type: 'bar',
+              data: {{
+                  labels: chart.labels,
+                  datasets: [{{
+                      label: 'Instance Total MakeSpan',
+                      data: chart.data,
+                      backgroundColor: backgroundColors,
+                      borderColor: borderColors,
+                      borderWidth: 1
+                  }}]
+              }},
+              options: {{
+                  scales: {{
+                      y: {{
+                          beginAtZero: true
+                      }}
+                  }},
+                  onClick: function(evt, activeElements) {{
+                      if(activeElements.length > 0) {{
+                          var idx = activeElements[0].index;
+                          var info = chart.tooltips[idx];
+                          // Atualiza e exibe a info box com as informações detalhadas
+                          var infoBox = document.getElementById('infoBox_' + index);
+                          infoBox.innerHTML = info.replace(/\\n/g, '<br>');
+                          infoBox.style.display = 'block';
+                      }}
+                  }},
+                  plugins: {{
+                      tooltip: {{
+                          enabled: false // Desabilita o tooltip padrão
+                      }}
+                  }}
+              }}
+         }});
     }});
   </script>
 </body>
-</html>";
+</html>
+";
 
-    // Write the HTML content to the output file.
-    File.WriteAllText(outputFilePath, htmlContent);
-    // Append a CSV line to the results file (without overwriting previous content).
-    string csvFilePath = "../../../Results/results.csv";
-    string csvLine = $"{algorithmName}; {(int)Math.Pow(instance.NumberOfMachines, instance.R)}; {instance.NumberOfMachines}; {execNumber}; {elapsedTime}; {iterations}; {instance.MakeSpan}; {scrambleCoeficient}";
-    File.AppendAllText(csvFilePath, csvLine + Environment.NewLine);
-  }
+        // Escreve o conteúdo HTML no arquivo de saída
+        File.WriteAllText(outputFilePath, htmlContent);
+    }
 }

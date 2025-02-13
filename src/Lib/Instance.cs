@@ -7,6 +7,7 @@ public sealed record Instance(
 {
     public int MakeSpan => MachineWithHighestMakeSpan.MakeSpan;
     public int OriginalMakeSpan => Machines.Sum(m => m.MakeSpan);
+    public int NumberOfTasks => (int)Math.Pow(NumberOfMachines, R);
     public Machine MachineWithLowestMakeSpan
         => Machines
             .OrderBy(m => m.MakeSpan)
