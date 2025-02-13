@@ -37,13 +37,28 @@ public static class BLM
         var iterations = 0;
         var sw = new Stopwatch();
         sw.Start();
-        while (IsPossibleToImprove(instance))
+        while (true)
         {
-            iterations++;
-            Instance.MoveTask(
-                instance.MachineWithHighestMakeSpan,
-                instance.MachineWithLowestMakeSpan,
-                instance.MachineWithHighestMakeSpan.HighestTask!);
+            if (IsPossibleToImproveHigh(instance))
+            {
+                iterations++;
+                Instance.MoveTask(
+                    instance.MachineWithHighestMakeSpan,
+                    instance.MachineWithLowestMakeSpan,
+                    instance.MachineWithHighestMakeSpan.HighestTask!);
+            }
+            else if (IsPossibleToImproveLow(instance))
+            {
+                iterations++;
+                Instance.MoveTask(
+                    instance.MachineWithHighestMakeSpan,
+                    instance.MachineWithLowestMakeSpan,
+                    instance.MachineWithHighestMakeSpan.LowestTask!);
+            }
+            else
+            {
+                break;
+            }
         }
 
         sw.Stop();
@@ -54,20 +69,31 @@ public static class BLM
                 instance.NumberOfTasks,
                 instance.NumberOfMachines,
                 index,
-                sw.ElapsedMilliseconds,
+                sw.Elapsed.Milliseconds,
                 iterations,
                 instance.MakeSpan,
                 0
             ));
     }
 
-    static bool IsPossibleToImprove(Instance instance)
+    static bool IsPossibleToImproveHigh(Instance instance)
     {
         var lowestMachineDuration = instance.MachineWithLowestMakeSpan.MakeSpan;
         var highestMachineHighestTaskDuration = instance.MachineWithHighestMakeSpan.HighestTask!.Duration;
 
         return lowestMachineDuration + highestMachineHighestTaskDuration < instance.MachineWithHighestMakeSpan.MakeSpan;
     }
+
+    static bool IsPossibleToImproveLow(Instance instance)
+    {
+        var highestMakeSpanMachine = instance.MachineWithHighestMakeSpan;
+        var lowesttask = highestMakeSpanMachine.LowestTask;
+        var makeSpanWithoutLowestTask = highestMakeSpanMachine.MakeSpan - lowesttask?.Duration ?? 0;
+        var lowestMakeSpanMachine = instance.MachineWithLowestMakeSpan;
+        var makeSpanWithLowestTask = lowestMakeSpanMachine.MakeSpan + lowesttask?.Duration ?? 0;
+        return makeSpanWithoutLowestTask < instance.MakeSpan &&
+               makeSpanWithLowestTask < instance.MakeSpan;
+    } 
 
     static (int Machine, double R) GetParameters(int m, int r)
     {

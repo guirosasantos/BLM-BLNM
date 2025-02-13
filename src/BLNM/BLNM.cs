@@ -10,6 +10,7 @@ public static class BLNM
         Instance instance;
         List<ExecutionReport> reports = [];
 
+        var iter = 1;
         for (int a = 0; a < 9; a++)
         {
             for (int m = 0; m < 3; m++)
@@ -20,7 +21,11 @@ public static class BLNM
                     {
                         var parameters = GetParameters(m, r, a);
                         instance = GenerateInstance(parameters.Machine, parameters.R);
-                        reports.Add(ExecuteIteratedSearch(instance, i, parameters.Alpha));
+                        var report = ExecuteIteratedSearch(instance, i, parameters.Alpha);
+                        reports.Add(report);
+                        Console.Clear();
+                        Console.WriteLine($"EXECUÇAO {iter} COMPLETA | M: {instance.NumberOfMachines} | R: {instance.R} | A: {parameters.Alpha} | X: {report.OptimumMinusMakeSpan}");
+                        iter++;
                     }
                 }
             }
@@ -41,15 +46,22 @@ static ExecutionReport ExecuteIteratedSearch(Instance instance, int index, doubl
     var sw = new Stopwatch();
     var unimprovedIterations = 0;
     sw.Start();
-    while (unimprovedIterations <= 10)
+    while (unimprovedIterations <= 1000)
     {
         iterations++;
-        if (IsPossibleToImprove(instance))
+        if (IsPossibleToImproveHigh(instance))
         {
             Instance.MoveTask(
                 instance.MachineWithHighestMakeSpan,
                 instance.MachineWithLowestMakeSpan,
                 instance.MachineWithHighestMakeSpan.HighestTask!);
+        }
+        else if (IsPossibleToImproveLow(instance))
+        {
+            Instance.MoveTask(
+                instance.MachineWithHighestMakeSpan,
+                instance.MachineWithLowestMakeSpan,
+                instance.MachineWithHighestMakeSpan.LowestTask!);
         }
         else
         {
@@ -59,6 +71,7 @@ static ExecutionReport ExecuteIteratedSearch(Instance instance, int index, doubl
             }
             else
             {
+                Console.WriteLine($"MELHOROU DE {bestMakespan} PARA {instance.MakeSpan}");
                 bestMakespan = instance.MakeSpan;
                 clone = instance with
                 {
@@ -80,20 +93,31 @@ static ExecutionReport ExecuteIteratedSearch(Instance instance, int index, doubl
             instance.NumberOfTasks,
             instance.NumberOfMachines,
             index,
-            sw.ElapsedMilliseconds,
+            sw.Elapsed.Milliseconds,
             iterations,
             instance.MakeSpan,
             alpha),
         alpha);
 }
 
-static bool IsPossibleToImprove(Instance instance)
+static bool IsPossibleToImproveHigh(Instance instance)
 {
     var lowestMachineDuration = instance.MachineWithLowestMakeSpan.MakeSpan;
     var highestMachineHighestTaskDuration = instance.MachineWithHighestMakeSpan.HighestTask!.Duration;
 
     return lowestMachineDuration + highestMachineHighestTaskDuration < instance.MachineWithHighestMakeSpan.MakeSpan;
 }
+
+static bool IsPossibleToImproveLow(Instance instance)
+{
+    var highestMakeSpanMachine = instance.MachineWithHighestMakeSpan;
+    var lowesttask = highestMakeSpanMachine.LowestTask;
+    var makeSpanWithoutLowestTask = highestMakeSpanMachine.MakeSpan - lowesttask?.Duration ?? 0;
+    var lowestMakeSpanMachine = instance.MachineWithLowestMakeSpan;
+    var makeSpanWithLowestTask = lowestMakeSpanMachine.MakeSpan + lowesttask?.Duration ?? 0;
+    return makeSpanWithoutLowestTask < instance.MakeSpan &&
+           makeSpanWithLowestTask < instance.MakeSpan;
+} 
 
 static (int Machine, double R, double Alpha) GetParameters(int m, int r, int a)
 {

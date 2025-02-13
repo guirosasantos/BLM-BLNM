@@ -8,9 +8,15 @@ public static class Program
 {
     public static void Main()
     {
-
-        var blnmExecutionReports = BLNM.Run().ToList(); // 54 grupos
+        var sw = new Stopwatch();
+        sw.Start();
         var blmExecutionReports = BLM.Run().ToList(); // 6 grupos
+        Console.WriteLine("BLM CONCLUÍDO");
+        Console.WriteLine("Total Time Spent BLM : " + sw.Elapsed.Minutes + " m " + sw.Elapsed.Seconds + " s " + sw.Elapsed.Milliseconds + " ms");
+        var blnmExecutionReports = BLNM.Run().ToList(); // 54 grupos
+        Console.WriteLine("BLNM CONCLUÍDO");
+        sw.Stop();
+        Console.WriteLine("Total Time Spent : " + sw.Elapsed.Minutes + " m" + sw.Elapsed.Seconds + " s" + sw.Elapsed.Milliseconds + " ms");
         var blmReportGroups = blmExecutionReports.Select(g => new BLMReportGroup(g.Key, g)).ToList();
         var blnmReportGroups = blnmExecutionReports.Select(g => new BLNMReportGroup(g.Key, g)).ToList();
         
